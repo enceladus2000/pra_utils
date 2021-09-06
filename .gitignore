@@ -1,0 +1,4 @@
+__pycache__
+.pyx
+.vscode
+log
