@@ -14,11 +14,10 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from mpl_toolkits import mplot3d as a3
 
-# NormalsType = Enum('NormalsType', 'none_reversed all_reversed mix')
 class NormalsType(Enum):
-	none_reversed = False
-	all_reversed = True
-	mix = 2
+	none_reversed = False	# for normal rooms, facing outwards
+	all_reversed = True		# for obstacles, facing inwards
+	mix = 2					# for rooms with obstacles
 
 @dataclass
 class Limits:
@@ -52,6 +51,7 @@ class BoundingBox:
 		return l
 
 class ComplexRoom(pra.Room):
+	"""Extends functionality of pra.Room"""
 
 	# interactive plot fig and axis
 	pi_fig = None
@@ -146,6 +146,16 @@ class ComplexRoom(pra.Room):
 
 	@classmethod
 	def from_stl(cls, path_to_stl: str, material: pra.Material = None, scale_factor: float = 1.0) -> ComplexRoom:
+		"""Creates a ComplexRoom from an STL mesh file.
+
+		Args:
+			path_to_stl (str): file path to .stl
+			material (pra.Material, optional): Wall material. Defaults to None.
+			scale_factor (float, optional): Room dimensions are multiplied by this. Defaults to 1.0.
+
+		Returns:
+			ComplexRoom: Object that has dimensions of STL provided.
+		"""
 		# TODO: Other room params like fs in args/kwargs?
 		material = pra.Material(0.5, None) if material is None else material
 
@@ -202,16 +212,26 @@ class ComplexRoom(pra.Room):
 						bounding_box: BoundingBox, 
 						material: pra.Material, 
 						reverse_normals: bool = False,
-						spacing=None,
+						spacing: float=0,
 						**kwargs) -> ComplexRoom:
+		"""Creates cuboidal ComplexRoom from specified bounding box.
+
+		Args:
+			bounding_box (BoundingBox): 
+			material (pra.Material): Wall material
+			reverse_normals (bool, optional): Keep true for obstacles. Defaults to False.
+			spacing (float, optional): Adds extra amount to each dimension. Defaults to 0.
+
+		Returns:
+			ComplexRoom: [description]
+		"""
 		# aliases for readability
 		xl, xr = bounding_box.x.left, bounding_box.x.right
 		yl, yr = bounding_box.y.left, bounding_box.y.right
 		zl, zr = bounding_box.z.left, bounding_box.z.right
 
-		if spacing is not None:
-			xl, yl, zl = [v-spacing for v in (xl, yl, zl)]
-			xr, yr, zr = [v+spacing for v in (xr, yr, zr)]
+		xl, yl, zl = [v-spacing for v in (xl, yl, zl)]
+		xr, yr, zr = [v+spacing for v in (xr, yr, zr)]
 
 		# base of 2D points, is in row-wise, normal facing +z form (assuming RH rule)
 		base = np.array([[xl, xr, xr, xl, xl], [yl, yl, yr, yr, yl]]).T
@@ -376,6 +396,20 @@ class ComplexRoom(pra.Room):
 		rpy=[0,0,0],
 		reverse_normals=False,
 	) -> ComplexRoom:
+		"""Creates polygonal ComplexRoom
+
+		Args:
+			material (pra.Material): Material of walls
+			centre (arraylike float[3]): Coordinates of centre.
+			radius (float): Distance from centre to unextruded polygon's vertices.	
+			height (float): Height of extruded polygon.
+			N (int, optional): Number of sides. Defaults to 3.
+			rpy (arraylike float[3], optional): Roll, pitch, yaw. Defaults to [0,0,0].
+			reverse_normals (bool, optional): Keep True for obstacles. Defaults to False.
+
+		Returns:
+			ComplexRoom: Poygonal ComplexRoom.
+		"""
 		wall_faces = ComplexRoom._make_polygon_walls(centre, radius, height, N, rpy, reverse_normals)
 		walls = ComplexRoom._construct_walls(wall_faces, material)
 		normals_type = NormalsType.all_reversed if reverse_normals else NormalsType.none_reversed
