@@ -6,13 +6,13 @@ from numpy.lib.utils import source
 parent_dir = pathlib.Path(sys.argv[0]).\
 				parent.absolute().\
 				parent.absolute().\
-				parent.absolute().\
 				__str__()
 sys.path.append(parent_dir)
+print(parent_dir)
 
 """Tests the make_polygon factory method and plot using show_normals=True"""
 
-from ros_acoustics.utils.pra_utils import ComplexRoom
+from pra_utils.complex_room import ComplexRoom
 import pyroomacoustics as pra
 import matplotlib.pyplot as plt
 import numpy as np

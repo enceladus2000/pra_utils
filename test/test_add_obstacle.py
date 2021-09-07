@@ -6,11 +6,11 @@ from numpy.lib.utils import source
 parent_dir = pathlib.Path(sys.argv[0]).\
 				parent.absolute().\
 				parent.absolute().\
-				parent.absolute().\
 				__str__()
 sys.path.append(parent_dir)
 
-from ros_acoustics.utils.pra_utils import ComplexRoom, NormalsType
+from pra_utils.complex_room import ComplexRoom
+from pra_utils.helpers import NormalsType
 import pyroomacoustics as pra
 import matplotlib.pyplot as plt
 

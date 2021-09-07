@@ -11,7 +11,7 @@ from mpl_toolkits import mplot3d as a3
 from pyroomacoustics import room
 from stl import mesh
 
-from helpers import Limits, BoundingBox, NormalsType
+from .helpers import Limits, BoundingBox, NormalsType
 
 class ComplexRoom(pra.Room):
 	"""Extends functionality of pra.Room"""
