@@ -23,6 +23,10 @@ class Limits:
 		if max > self.right:
 			self.right = max
 
+	@property
+	def mid(self):
+		return (self.right - self.left) / 2
+
 @dataclass
 class BoundingBox:
 	"""Stores the 3D coordinate limits of a figure."""
@@ -36,3 +40,7 @@ class BoundingBox:
 		l.left = min(self.x.left, self.y.left, self.z.left)
 		l.right = max(self.x.right, self.y.right, self.z.right)
 		return l
+
+	@property
+	def centre(self):
+		return [self.x.mid, self.y.mid, self.z.mid]

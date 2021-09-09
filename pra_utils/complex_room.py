@@ -219,6 +219,7 @@ class ComplexRoom(pra.Room):
 					corners.T,
 					material.absorption_coeffs,
 					material.scattering_coeffs,
+					f'wall_{i}',
 				)
 			)
 
@@ -241,6 +242,7 @@ class ComplexRoom(pra.Room):
 				bottom_wall_corners.T,
 				material.absorption_coeffs,
 				material.scattering_coeffs,
+				f'wall_{4}',
 			))
 
 		walls.append(
@@ -248,6 +250,7 @@ class ComplexRoom(pra.Room):
 				top_wall_corners.T,
 				material.absorption_coeffs,
 				material.scattering_coeffs,
+				f'wall_{5}',
 			)
 		)
 		normals_type = NormalsType.all_reversed if reverse_normals else NormalsType.none_reversed
@@ -349,6 +352,7 @@ class ComplexRoom(pra.Room):
 		self._reinit_with_new_walls(n_walls)
 
 	## Room utils
+	# TODO: Make material part of kwargs?
 	@classmethod
 	def make_polygon(cls, 
 		material: pra.Material,
@@ -402,7 +406,7 @@ class ComplexRoom(pra.Room):
 						corners,
 						wall.absorption,
 						wall.scatter,
-						wall.name,
+						'', # TODO: for helping in debugging, make it better later
 					)
 				)
 		elif obstacle.normals_type is NormalsType.all_reversed:
