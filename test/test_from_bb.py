@@ -8,11 +8,10 @@ from numpy.lib.utils import source
 parent_dir = pathlib.Path(sys.argv[0]).\
 				parent.absolute().\
 				parent.absolute().\
-				parent.absolute().\
 				__str__()
 sys.path.append(parent_dir)
 
-from ros_acoustics.utils.pra_utils import BoundingBox, ComplexRoom, Limits
+from pra_utils.core import *
 import pyroomacoustics as pra
 import matplotlib.pyplot as plt
 import numpy as np

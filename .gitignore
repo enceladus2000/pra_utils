@@ -1,4 +1,7 @@
 __pycache__
 .pyx
+.pyc
 .vscode
 log
+
+rough
