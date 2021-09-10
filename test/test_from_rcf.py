@@ -7,7 +7,7 @@ parent_dir = pathlib.Path(sys.argv[0]).\
 				__str__()
 sys.path.append(parent_dir)
 
-from pra_utils.complex_room import ComplexRoom
+from pra_utils.core import ComplexRoom
 import matplotlib.pyplot as plt
 import numpy as np
 

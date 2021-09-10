@@ -9,8 +9,7 @@ parent_dir = pathlib.Path(sys.argv[0]).\
 				__str__()
 sys.path.append(parent_dir)
 
-from pra_utils.complex_room import ComplexRoom
-from pra_utils.helpers import NormalsType
+from pra_utils.core import *
 import pyroomacoustics as pra
 import matplotlib.pyplot as plt
 
@@ -32,7 +31,7 @@ obstacle = ComplexRoom.make_polygon(
 		height=1, 
 		N=4, 
 		rpy=[0,0,0],
-		reverse_normals=False,
+		reverse_normals=True,
 	)
 obstacle.spatial_transform([.4,0,.3])
 print(obstacle.volume)
