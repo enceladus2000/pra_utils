@@ -108,14 +108,19 @@ class ComplexRoom(pra.Room):
 		return fig, ax
 
 	@classmethod
-	def from_stl(cls, path_to_stl: str, material: pra.Material = None, scale_factor: float = 1.0) -> ComplexRoom:
+	def from_stl(cls, 
+		path_to_stl: str, 
+		material: pra.Material, 
+		scale_factor: float = 1.0,
+		**kwargs
+	) -> ComplexRoom:
 		"""Creates a ComplexRoom from an STL mesh file.
 
 		Args:
 			path_to_stl (str): file path to .stl
-			material (pra.Material, optional): Wall material. Defaults to None.
+			material (pra.Material): Wall material.
 			scale_factor (float, optional): Room dimensions are multiplied by this. Defaults to 1.0.
-
+			**kwargs: Other pyroomacoustics.Room arguments like fs, max_order, ray_tracing etc.
 		Returns:
 			ComplexRoom: Object that has dimensions of STL provided.
 		"""
@@ -136,14 +141,15 @@ class ComplexRoom(pra.Room):
 				)
 			)
 
-		return cls(walls, fs=16000, max_order=4, ray_tracing=False)
+		return cls(walls, **kwargs)
 
 	@classmethod
-	def from_rcf(cls, path_to_rcf) -> ComplexRoom:
+	def from_rcf(cls, path_to_rcf, **kwargs) -> ComplexRoom:
 		"""Factory method to create ComplexRoom from a room config file (rcf)
 
 		Args:
-			path_to_rcf (str): Path to existing rcf
+			path_to_rcf (str): Path to existing rcf.
+			**kwargs: Other pyroomacoustics.Room arguments like fs, max_order, ray_tracing etc.
 		"""
 		with open(path_to_rcf, 'r') as file:
 			# get room dict
@@ -163,12 +169,7 @@ class ComplexRoom(pra.Room):
 				)
 			)
 
-		return cls(walls,
-					fs=rdin['fs'],
-					max_order=rdin['max_order'],
-					air_absorption=rdin['air_absorption'],
-					ray_tracing=rdin['ray_tracing']	,
-				)
+		return cls(walls, **kwargs,)
 
 	@classmethod
 	def from_bounding_box(cls, 
@@ -362,6 +363,7 @@ class ComplexRoom(pra.Room):
 		N=3,
 		rpy=[0,0,0],
 		reverse_normals=False,
+		**kwargs,
 	) -> ComplexRoom:
 		"""Creates polygonal ComplexRoom
 
@@ -373,14 +375,14 @@ class ComplexRoom(pra.Room):
 			N (int, optional): Number of sides. Defaults to 3.
 			rpy (arraylike float[3], optional): Roll, pitch, yaw. Defaults to [0,0,0].
 			reverse_normals (bool, optional): Keep True for obstacles. Defaults to False.
-
+			**kwargs: Other pyroomacoustics.Room arguments like fs, max_order, ray_tracing etc.
 		Returns:
 			ComplexRoom: Poygonal ComplexRoom.
 		"""
 		wall_faces = ComplexRoom._make_polygon_walls(centre, radius, height, N, rpy, reverse_normals)
 		walls = ComplexRoom._construct_walls(wall_faces, material)
 		normals_type = NormalsType.all_reversed if reverse_normals else NormalsType.none_reversed
-		return cls(walls, normals_type=normals_type)
+		return cls(walls, normals_type=normals_type, **kwargs)
 
 	def add_obstacle(self, obstacle: ComplexRoom) -> None:
 		"""Add another room as an 'obstacle' in a larger room.
@@ -394,25 +396,21 @@ class ComplexRoom(pra.Room):
 		if self.normals_type is not NormalsType.none_reversed:
 			raise NotImplementedError('Parent room must have unreversed normals.')
 
+		if obstacle.normals_type in (NormalsType.mix, NormalsType.none_reversed):
+			raise NotImplementedError('Cannot add obstacle with mixed or unreversed normals to room.')
+
 		self.normals_type = NormalsType.mix
 		
 		walls = self.walls 
-		if obstacle.normals_type is NormalsType.none_reversed:
-			# reverse wall normals by remaking walls wherein corners are reversed
-			for wall in obstacle.walls:
-				corners = np.flip(wall.corners, axis=1)
-				walls.append(
-					pra.wall_factory(
-						corners,
-						wall.absorption,
-						wall.scatter,
-						'', # TODO: for helping in debugging, make it better later
-					)
+		for wall in obstacle.walls:
+			walls.append(
+				pra.wall_factory(
+					wall.corners,
+					wall.absorption,
+					wall.scatter,
+					wall.name+'_o', # TODO: for helping in debugging, make it better later
 				)
-		elif obstacle.normals_type is NormalsType.all_reversed:
-			walls += obstacle.walls
-		else:
-			raise NotImplementedError('Cannot add obstacle with mixed normals to room.')
+			)
 
 		self._reinit_with_new_walls(walls, NormalsType.mix) # TODO: reinit with other params?
 

@@ -9,9 +9,14 @@ sys.path.append(parent_dir)
 
 from pra_utils.complex_room import ComplexRoom
 import matplotlib.pyplot as plt
+import pyroomacoustics as pra
 
 path_to_stl = 'test/data/simple_pipe.stl'
 
-room = ComplexRoom.from_stl(path_to_stl)
+room_material = pra.Material(0.5, None)
+room = ComplexRoom.from_stl(path_to_stl, room_material,
+		fs=15500, max_order=3,)
+
+print(room.fs)
 room.plot(show_normals={'length':.6})
 plt.show()
