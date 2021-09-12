@@ -196,17 +196,25 @@ class ComplexRoom(pra.Room):
 		Args:
 			path_to_rcf (str): Path to existing rcf.
 			**kwargs: Other pyroomacoustics.Room arguments like fs, max_order, ray_tracing etc.
+				material (pra.Material): If specified, will override the material specified in rcf.
 		"""
 		with open(path_to_rcf, 'r') as file:
-			# get room dict
-			rdin = yaml.load(file, Loader=yaml.FullLoader)
+			rdin = yaml.load(file, Loader=yaml.FullLoader)	# get room dict
+
+		default_mat = kwargs.get('material', None)
+		kwargs.pop('material', None)		# don't pass 'material' to cls()
 		
 		walls = []
 		for w in rdin['walls']:
 			# TODO: checks for value and type of attributes
 			wcorners = np.array(w['corners']).T
-			mat = pra.Material(w['material']['absorption'], w['material']['scattering'])
 
+			mat = None
+			if default_mat is None:
+				mat = pra.Material(w['material']['absorption'], w['material']['scattering'])
+			else:
+				mat = default_mat
+		
 			walls.append(
 				pra.wall_factory(
 					wcorners,

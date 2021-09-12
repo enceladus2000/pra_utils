@@ -10,10 +10,13 @@ sys.path.append(parent_dir)
 from pra_utils.core import ComplexRoom
 import matplotlib.pyplot as plt
 import numpy as np
+import pyroomacoustics as pra
 
 path_to_rcf = 'test/data/t_pipe.rcf'
 
-room = ComplexRoom.from_rcf(path_to_rcf, fs=18000)
+room = ComplexRoom.from_rcf(path_to_rcf, fs=18000, 
+					# material=pra.Material(0.4, 0.1),
+				)
 room.plot()
 plt.show()
 
@@ -24,4 +27,5 @@ plt.show()
 # room.plot_rir()
 # plt.show()
 
-print(room.fs)
+for w in room.walls:
+	print(w.absorption[0], w.scatter[0])
