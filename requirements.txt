@@ -1,0 +1,7 @@
+numpy
+numpy_stl==2.16.0
+matplotlib>=3
+pyroomacoustics==0.4.3
+dataclasses
+PyYAML~=5.4.1
+stl==0.0.3
