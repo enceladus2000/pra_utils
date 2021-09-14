@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<sdf version="1.4">
+	<world name="default">
+
+		<physics type="ode">
+			<max_step_size>0.001</max_step_size>
+			<!--real_time_update_rate>0</real_time_update_rate-->
+		</physics>
+
+		<include>
+			<uri>model://sun</uri>
+		</include>
+		<include>
+			<uri>model://ground_plane</uri>
+		</include>
+
+		<model name="simple_pipe">
+			<pose> 0 0 0 0 0 0</pose>
+			<static> true </static>
+
+			<link name="base_link">
+				<pose> 0 0 0 0 0 0</pose>
+				<visual name='visual'>
+					<geometry>
+						<!-- <box>
+							<size>2.0 2.0 1.2</size>
+						</box> -->
+						<mesh>
+							<uri>./install/ros_acoustics/share/ros_acoustics/data/simple_pipe.stl</uri>
+							<scale>1 1 1</scale>
+						</mesh>
+					</geometry>
+				</visual>
+		
+			</link>
+		</model>
+	</world>
+</sdf>
