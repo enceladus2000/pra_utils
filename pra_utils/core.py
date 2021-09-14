@@ -170,7 +170,6 @@ class ComplexRoom(pra.Room):
 		Returns:
 			ComplexRoom: Object that has dimensions of STL provided.
 		"""
-		# TODO: Other room params like fs in args/kwargs?
 		material = pra.Material(0.5, None) if material is None else material
 
 		room_mesh = mesh.Mesh.from_file(path_to_stl)
