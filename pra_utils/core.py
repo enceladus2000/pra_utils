@@ -5,6 +5,7 @@ import pprint as pp
 import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy.lib.arraysetops import isin
 import pyroomacoustics as pra
 import yaml
 from mpl_toolkits import mplot3d as a3
@@ -53,6 +54,12 @@ class BoundingBox:
 		l.left = min(self.x.left, self.y.left, self.z.left)
 		l.right = max(self.x.right, self.y.right, self.z.right)
 		return l
+
+	def add_spacing(self, spacing: float) -> None:
+		"""Adds spacing to bb, i.e. right += spacing, left -= spacing."""
+		for dim in (self.x, self.y, self.z):
+			dim.right += spacing
+			dim.left -= spacing
 
 	@property
 	def centre(self):
@@ -158,6 +165,7 @@ class ComplexRoom(pra.Room):
 		path_to_stl: str, 
 		material: pra.Material, 
 		scale_factor: float = 1.0,
+		reverse_normals: bool = False,
 		**kwargs
 	) -> ComplexRoom:
 		"""Creates a ComplexRoom from an STL mesh file.
@@ -166,25 +174,15 @@ class ComplexRoom(pra.Room):
 			path_to_stl (str): file path to .stl
 			material (pra.Material): Wall material.
 			scale_factor (float, optional): Room dimensions are multiplied by this. Defaults to 1.0.
+			reverse_normals (bool, optional): Set True if you want to make an obstacle.
 			**kwargs: Other pyroomacoustics.Room arguments like fs, max_order, ray_tracing etc.
 		Returns:
 			ComplexRoom: Object that has dimensions of STL provided.
 		"""
-		material = pra.Material(0.5, None) if material is None else material
+		assert isinstance(material, pra.Material)
 
-		room_mesh = mesh.Mesh.from_file(path_to_stl)
-		ntriang = room_mesh.vectors.shape[0]
-
-		walls = []
-		for i in range(ntriang):
-			walls.append(
-				pra.wall_factory(
-					room_mesh.vectors[i].T * scale_factor,
-					material.energy_absorption['coeffs'],
-					material.scattering['coeffs'],
-					name='wall_'+str(i),
-				)
-			)
+		wall_faces = ComplexRoom._make_walls_from_stl(path_to_stl, scale_factor, reverse_normals)
+		walls = ComplexRoom._construct_walls(wall_faces, material)
 
 		return cls(walls, **kwargs)
 
@@ -505,7 +503,8 @@ class ComplexRoom(pra.Room):
 	
 	@staticmethod
 	def _make_polygon_walls(centre, radius, height, N=3, rpy=[0,0,0], reverse_normals=False) -> ComplexRoom:
-		"""Create an extruded polygonal room
+		"""Create an extruded polygonal room's wall faces, i.e. the 
+			coordinates of their vertices in a 3D numpy array.
 
 		Args:
 			centre (array-like): centre of mass of polygon
@@ -513,8 +512,13 @@ class ComplexRoom(pra.Room):
 			height (float): height of extrusion
 			N (int, optional): Number of sides. Defaults to 3.
 			rpy (array-like, optional): Roll, pitch and yaw (in that order). Defaults to [0,0,0].
-			reverse_normals (bool, optional): If true, normals point inward. Keep true for obstacles, false for rooms.
-				Defaults to False.
+			reverse_normals (bool, optional): If true, normals point inward. Keep true for obstacles, false for rooms. Defaults to False.
+		Returns:
+			3D numpy array of wall faces, that can directly be used in ComplexRoom._construct_walls().
+				axis 0: wall face index
+				axis 1: vertices in the wall face.
+				axis 2: coordinate of the vertex (x,y,z)
+			Note each wall face vertex is stored row-wise, instead of column-wise like pyroomacoustics's convention. 
 		"""
 		lower_points = []
 		upper_points = []
@@ -583,9 +587,11 @@ class ComplexRoom(pra.Room):
 		"""Returns a list of Wall objects that can be used in the Room constructor
 
 		Args:
-			wall_faces (array/list of Nx3 numpy 2D matrices): Same as the output of make_polygon. 
-				Each element of this is a 2D matrix representing a wall, each row is a coordinate
-				of a vertex.
+			wall_faces: Same as the output of make_polygon. 3D numpy array of wall faces.
+					axis 0: wall face index
+					axis 1: vertices in the wall face.
+					axis 2: coordinate of the vertex (x,y,z)
+				Note each wall face vertex is stored row-wise, instead of column-wise like pyroomacoustics's convention. 
 			material (pra.Material): Material of the wall
 
 		Returns:
@@ -612,6 +618,20 @@ class ComplexRoom(pra.Room):
 			)
 
 		return walls 
+
+	@staticmethod
+	def _make_walls_from_stl(stl_path: str, scale_factor: float = 1., reverse_normals: bool = False):
+		room_mesh = mesh.Mesh.from_file(stl_path)
+		ntriang = room_mesh.vectors.shape[0]
+
+		walls = []
+		for i in range(ntriang):
+			# room_mesh.vectors[i] is wall_face with vertices stored row-wise
+			if reverse_normals:
+				room_mesh.vectors[i] = np.flip(room_mesh.vectors[i], 0)
+			walls.append(scale_factor * room_mesh.vectors[i])
+
+		return np.array(walls)
 
 # end of ComplexRoom class
 

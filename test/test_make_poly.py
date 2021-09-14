@@ -21,7 +21,7 @@ np.set_printoptions(precision=2, suppress=True)
 
 # rpy = np.pi * np.random.rand(3) - np.pi/2
 # rpy = [np.pi/2, np.pi/4, np.pi/3]
-rpy = [0,0,0]
+rpy = [0,np.pi/4,np.pi/12]
 print(rpy)
 
 room_material = pra.Material(0.8, None)
@@ -30,7 +30,7 @@ room = ComplexRoom.make_polygon(
 		centre=[0,0,0], 
 		radius=5, 
 		height=2.3, 
-		N=4, 
+		N=32, 
 		rpy=rpy,
 		reverse_normals=False,
 		fs=14500,
