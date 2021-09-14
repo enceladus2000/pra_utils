@@ -183,8 +183,9 @@ class ComplexRoom(pra.Room):
 
 		wall_faces = ComplexRoom._make_walls_from_stl(path_to_stl, scale_factor, reverse_normals)
 		walls = ComplexRoom._construct_walls(wall_faces, material)
+		normals_type = NormalsType.all_reversed if reverse_normals else NormalsType.none_reversed
 
-		return cls(walls, **kwargs)
+		return cls(walls, normals_type=normals_type, **kwargs)
 
 	@classmethod
 	def from_rcf(cls, path_to_rcf, **kwargs) -> ComplexRoom:

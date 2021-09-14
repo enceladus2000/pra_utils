@@ -14,8 +14,8 @@ import pyroomacoustics as pra
 path_to_stl = 'test/data/simple_pipe.stl'
 
 room_material = pra.Material(0.5, None)
-room = ComplexRoom.from_stl(path_to_stl, room_material, reverse_normals=True,
-		fs=15500, max_order=3,)
+room = ComplexRoom.from_stl(path_to_stl, room_material, reverse_normals=True, 
+		scale_factor=3., fs=15500, max_order=3,)
 
 print(room.fs)
 room.plot(show_normals={'length':.6})

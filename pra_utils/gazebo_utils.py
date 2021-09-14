@@ -17,6 +17,7 @@ class SDFConverter:
 		self.sdf_path = sdf_path
 		self.use_geometry = use_geometry
 		self.mesh_paths = dict()
+		self.room = None
 
 	def add_mesh_path(self, model, link, path):
 		if not os.path.isfile(path):
@@ -31,7 +32,9 @@ class SDFConverter:
 
 		# TODO: generally attribs can be xml attribs or children, how to handle both cases?
 
-		walls = []
+		# extract mesh information from SDF and convert into pra walls
+		# walls = []
+		obstacles = []
 		for model in sdfroot.iter('model'):
 			model_name = model.attrib.get('name')
 			model_pose = model.find('pose').text
@@ -54,13 +57,25 @@ class SDFConverter:
 				
 				material = pra.Material(0.5, None) 	# TODO: how to implement material
 
-				walls += self._walls_from_stl(mesh_path, material, scale)
+				# wall_faces = ComplexRoom._make_walls_from_stl(mesh_path, scale, reverse_normals=True)
+				# walls += ComplexRoom._construct_walls(wall_faces, material)
+				obstacles.append(
+					ComplexRoom.from_stl(mesh_path, material, scale, reverse_normals=True)
+				)
 		
-		room = ComplexRoom(walls)
+		# Add bounding parent room
+		bb = obstacles[0].get_bounding_box()
+		room = ComplexRoom.from_bounding_box(bb, pra.Material(0.5, None), spacing=1.)
+
+		for obstacle in obstacles:
+			room.add_obstacle(obstacle)
+
+		self.room = room
 		return room
 
 	# TODO: add generator for wall names as argument?
-	def _walls_from_stl(self, stl_path: str, material: pra.Material, scale_factor: float = 1.):
+	@staticmethod
+	def _walls_from_stl(stl_path: str, material: pra.Material, scale_factor: float = 1.):
 		room_mesh = mesh.Mesh.from_file(stl_path)
 		ntriang = room_mesh.vectors.shape[0]
 
@@ -77,11 +92,27 @@ class SDFConverter:
 
 		return walls
 
+	@staticmethod
+	def _bb_from_walls(walls, spacing=0.):
+		bb = BoundingBox()
+
+		for w in walls:
+			xmax, xmin = w.corners[0].max(), w.corners[0].min()
+			ymax, ymin = w.corners[1].max(), w.corners[1].min()
+			zmax, zmin = w.corners[2].max(), w.corners[2].min()
+			
+			bb.x.update(xmin, xmax)
+			bb.y.update(ymin, ymax)
+			bb.z.update(zmin, zmax)
+
+		bb.add_spacing(spacing)
+		return bb
+
 if __name__ == '__main__':
 	sdfc = SDFConverter('data/worlds/simple_pipe.world')
 	sdfc.add_mesh_path('simple_pipe', 'base_link', '/home/tanmay/Projects/pra_utils/data/mesh/simple_pipe.stl')
 	room = sdfc.convert()
-	room.plot()
+	room.plot(show_normals={'length':0.5})
 	plt.show()
 
 	# room.save_rcf('data/rcf/simple_pipe.rcf')
