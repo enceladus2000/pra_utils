@@ -4,15 +4,19 @@ This is a python package that adds some extra functionality to the pyroomacousti
 
 ## Installation
 
-1. Clone this repo
-2. Installed prerequisites:
+1. Clone this repo into any directory.
+2. `cd` to the project root directory and install using
 
-    `pip3 install -r requirements.txt`
+    `pip3 install . `
 
-3. Run tests (manually for now, haven't set up unit tests yet), to check if it works.
-4. To use in this package in your project, export the path to this package to PYTHONPATH:
+    Note: For development, it is recommended to install in edit mode:
 
-    `export PYTHONPATH=/path/to/pra_utils:$PYTHONPATH`
+    `pip3 install -e .`
+
+3. Test the install by importing the pra_utils package:
+
+    `python3 -c 'import pra_utils'`
+4. Buy me a beer, thanks.
 
 ## Added Features
 
