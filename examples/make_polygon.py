@@ -1,15 +1,3 @@
-# hack to import ros_acoustics module
-import pathlib
-import sys
-
-from numpy.lib.utils import source
-parent_dir = pathlib.Path(sys.argv[0]).\
-				parent.absolute().\
-				parent.absolute().\
-				__str__()
-sys.path.append(parent_dir)
-print(parent_dir)
-
 """Tests the make_polygon factory method and plot using show_normals=True"""
 
 from pra_utils.core import ComplexRoom

@@ -7,7 +7,7 @@ import pyroomacoustics as pra
 import matplotlib.pyplot as plt
 from stl import mesh
 
-from core import BoundingBox, ComplexRoom, Limits
+from pra_utils.core import BoundingBox, ComplexRoom, Limits
 
 
 class SDFConverter:
