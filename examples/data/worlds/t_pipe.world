@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sdf version="1.4">
+    <world name="default">
+
+        <physics type="ode">
+            <max_step_size>0.001</max_step_size>
+        </physics>
+
+        <include>
+            <uri>model://ground_plane</uri>
+        </include>
+
+        <include>
+            <uri>model://sun</uri>
+        </include>
+
+        <model name="t_pipe">
+            <pose>0 0 0 0 0 0</pose>
+            <static>true</static>
+            <link name="pipe">
+                <visual name="visual">
+                <geometry>
+                    <mesh>
+                    <uri>./install/ros_acoustics/share/ros_acoustics/data/hollow_t_pipe.stl</uri>
+                    <scale>0.001 0.001 0.001</scale>
+                    </mesh>
+                </geometry>
+                </visual>
+            </link>
+        </model>
+    </world>
+</sdf>

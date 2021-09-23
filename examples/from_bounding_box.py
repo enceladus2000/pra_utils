@@ -1,16 +1,5 @@
 """Tests ComplexRoom.from_bounding_box"""
 
-# hack to import ros_acoustics module
-import pathlib
-import sys
-
-from numpy.lib.utils import source
-parent_dir = pathlib.Path(sys.argv[0]).\
-				parent.absolute().\
-				parent.absolute().\
-				__str__()
-sys.path.append(parent_dir)
-
 from pra_utils.core import *
 import pyroomacoustics as pra
 import matplotlib.pyplot as plt
