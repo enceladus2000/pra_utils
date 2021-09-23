@@ -3,7 +3,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pyroomacoustics as pra
 
-# TODO: switch to directory of the script first
+# switch to parent dir of script
+from pathlib import Path
+import os
+parent_dir = Path(__file__).parent
+os.chdir(parent_dir)
 
 path_to_rcf = 'data/rcf/t_pipe.rcf'
 
@@ -19,6 +23,3 @@ plt.show()
 
 # room.plot_rir()
 # plt.show()
-
-for w in room.walls:
-	print(w.absorption[0], w.scatter[0])

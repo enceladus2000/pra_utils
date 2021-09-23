@@ -2,6 +2,12 @@ from pra_utils.core import ComplexRoom
 import matplotlib.pyplot as plt
 import pyroomacoustics as pra
 
+# switch to parent dir of script
+from pathlib import Path
+import os
+parent_dir = Path(__file__).parent
+os.chdir(parent_dir)
+
 path_to_stl = 'data/mesh/simple_pipe.stl'
 
 room_material = pra.Material(0.5, None)
